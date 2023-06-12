@@ -250,7 +250,7 @@ func TestCarRepository_DeleteCarById(t *testing.T) {
 
 		f.mock.ExpectExec(regexp.QuoteMeta("DELETE FROM cars WHERE id=$1")).
 			WithArgs(id).
-			WillReturnResult(sqlmock.NewErrorResult(expectErr))
+			WillReturnError(expectErr)
 
 		repo := New(f.db)
 
@@ -258,7 +258,7 @@ func TestCarRepository_DeleteCarById(t *testing.T) {
 		err := repo.DeleteCarById(context.Background(), id)
 
 		// Assert
-		assert.Error(t, expectErr, err)
+		assert.ErrorIs(t, expectErr, err)
 	})
 }
 
@@ -345,7 +345,7 @@ func TestCarRepository_UpdateCar(t *testing.T) {
 
 		f.mock.ExpectExec(regexp.QuoteMeta("UPDATE cars SET brand=$1, model=$2, color=$3, cost=$4 WHERE id=$5")).
 			WithArgs(expectedCar.Brand, expectedCar.Model, expectedCar.Color, expectedCar.Cost, expectedCar.Id).
-			WillReturnResult(sqlmock.NewErrorResult(expectErr))
+			WillReturnError(expectErr)
 
 		repo := New(f.db)
 
@@ -353,7 +353,7 @@ func TestCarRepository_UpdateCar(t *testing.T) {
 		car, err := repo.UpdateCar(context.Background(), expectedCar)
 
 		// Assert
-		assert.Error(t, expectErr, err)
-		assert.Equal(t, expectedCar, car)
+		assert.ErrorIs(t, expectErr, err)
+		assert.Equal(t, entities.Car{}, car)
 	})
 }

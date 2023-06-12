@@ -61,7 +61,6 @@ func (r *CarRepository) AddCar(ctx context.Context, car entities.Car) (entities.
 
 func (r *CarRepository) DeleteCarById(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, deleteCarQuery, id)
-
 	if err != nil {
 		return err
 	}
