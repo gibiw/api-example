@@ -1,0 +1,37 @@
+### Get all cars
+GET http://localhost:8080/cars HTTP/1.1
+content-type: application/json
+
+### Add a new car
+
+POST http://localhost:8080/cars HTTP/1.1
+content-type: application/json
+
+{
+    "brand": "Audi",
+    "model": "A3",
+    "color": "Red",
+    "cost": 10000
+}
+
+### Get a car by ID
+
+GET http://localhost:8080/cars/52163f22-eacb-4c3e-bce3-1ff217d73add HTTP/1.1
+content-type: application/json
+
+### Delete a car by ID
+
+DELETE http://localhost:8080/cars/c2d9b5be-e57c-4e32-a45f-1b55055b59b3 HTTP/1.1
+
+### Update a car
+
+PUT http://localhost:8080/cars HTTP/1.1
+content-type: application/json
+
+{
+    "id": "74a9aaf0-524b-4cff-bcb3-e37803b7d0c9",
+    "brand": "Audi",
+    "model": "A3",
+    "color": "Green",
+    "cost": 10001
+}
