@@ -1,0 +1,14 @@
+service:
+  host: localhost
+  port: 8080
+  cacheTtlSeconds: 10
+
+database:
+  host: localhost
+  port: 5432
+  databaseName: cars
+  user: postgres	
+  password: Qwerty123
+
+logger:
+  level: debug  
