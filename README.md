@@ -2,7 +2,7 @@
 
 This repository contains example of simple API service.
 
-You can clone this repo and run service. Just run following comands:
+You can clone this repo and run a service. Just run following commands:
 
 1. Clone the repo:
 
@@ -16,7 +16,7 @@ git clone https://github.com/gibiw/api-example & cd /api-example
 docker-compose -f ./deploy/docker-compose.yml
 ```
 
-3. Apply migration to database:
+3. Apply migrations to database:
 
 ```sh
 make migration_up
