@@ -16,7 +16,7 @@ type repository interface {
 	UpdateCar(ctx context.Context, car entities.Car) (entities.Car, error)
 }
 
-// TODO add tests and logs
+// TODO add logs
 type CarsUsecases struct {
 	r repository
 }

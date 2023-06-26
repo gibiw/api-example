@@ -21,7 +21,6 @@ type CarRepository struct {
 	db *sqlx.DB
 }
 
-// TODO move queries to consts and add tests
 func New(db *sqlx.DB) *CarRepository {
 	return &CarRepository{
 		db: db,
