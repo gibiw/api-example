@@ -12,6 +12,7 @@ migration_down:
 
 .PHONY: run
 run:
+	swag init --parseInternal -g cmd/main.go -q
 	go run ./cmd/main.go		
 
 .PHONY: test
@@ -26,3 +27,7 @@ coverage:
 .PHONY: lint
 test:
 	golangci-lint run	
+
+.PHONY: database_up
+database:
+	docker-compose -f deploy/docker-compose.yml -p api up -d

@@ -13,6 +13,19 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+// @title           Cars API
+// @version         1.0
+// @description     This is a example API service.
+
+// @contact.name   Dmitry Gridnev
+// @contact.url    https://github.com/gibiw/api-example
+// @contact.email  gibiw1@gmail.com
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+
 func main() {
 	var cfg config.Config
 	err := cleanenv.ReadConfig("config/config.yml", &cfg)

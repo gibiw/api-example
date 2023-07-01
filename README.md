@@ -7,13 +7,13 @@ You can clone this repo and run a service. Just run following commands:
 1. Clone the repo:
 
 ```sh
-git clone https://github.com/gibiw/api-example & cd /api-example
+git clone https://github.com/gibiw/api-example && cd /api-example
 ```
 
 2. Run a database in docker:
 
 ```sh
-docker-compose -f ./deploy/docker-compose.yml
+make database_up
 ```
 
 3. Apply migrations to database:
