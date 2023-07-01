@@ -62,7 +62,7 @@ func (s *Server) getCarById() func(w http.ResponseWriter, _ *http.Request) {
 		idParam := chi.URLParam(r, "id")
 		id, err := uuid.Parse(idParam)
 		if err != nil {
-			newErrorResponse(w, http.StatusInternalServerError, err)
+			newErrorResponse(w, http.StatusBadRequest, err)
 			return
 		}
 
@@ -111,7 +111,7 @@ func (s *Server) addCar() func(w http.ResponseWriter, _ *http.Request) {
 
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			newErrorResponse(w, http.StatusInternalServerError, err)
+			newErrorResponse(w, http.StatusBadRequest, err)
 			return
 		}
 		defer r.Body.Close()
@@ -157,7 +157,7 @@ func (s *Server) deleteCarById() func(w http.ResponseWriter, _ *http.Request) {
 		idParam := chi.URLParam(r, "id")
 		id, err := uuid.Parse(idParam)
 		if err != nil {
-			newErrorResponse(w, http.StatusInternalServerError, err)
+			newErrorResponse(w, http.StatusBadRequest, err)
 			return
 		}
 
@@ -185,7 +185,7 @@ func (s *Server) updateCar() func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			newErrorResponse(w, http.StatusInternalServerError, err)
+			newErrorResponse(w, http.StatusBadRequest, err)
 			return
 		}
 		defer r.Body.Close()
