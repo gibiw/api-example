@@ -14,12 +14,21 @@ import (
 	"github.com/gookit/slog"
 )
 
+// getCars godoc
+// @Summary      Get all cars
+// @Description  Get all cars
+// @Tags         cars
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  []CarDto
+// @Failure      500  {object}  errorResponse
+// @Router       /cars/ [get]
 func (s *Server) getCars() func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cars, err := s.usc.GetCars(r.Context())
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		dtos := make([]CarDto, 0, len(cars))
@@ -29,8 +38,8 @@ func (s *Server) getCars() func(w http.ResponseWriter, _ *http.Request) {
 
 		data, err := json.Marshal(dtos)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -38,20 +47,30 @@ func (s *Server) getCars() func(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+// getCarById godoc
+// @Summary      Get a car by ID
+// @Description  Get a car by ID
+// @Tags         cars
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Car ID"
+// @Success      200  {object}  CarDto
+// @Failure      500  {object}  errorResponse
+// @Router       /cars/{id} [get]
 func (s *Server) getCarById() func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idParam := chi.URLParam(r, "id")
 		id, err := uuid.Parse(idParam)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		if value, ok := s.getValueFromCache(idParam); ok {
 			car, err := json.Marshal(carDomainToDto(value))
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(err.Error()))
+				newErrorResponse(w, http.StatusInternalServerError, err)
+				return
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -61,15 +80,15 @@ func (s *Server) getCarById() func(w http.ResponseWriter, _ *http.Request) {
 
 		c, err := s.usc.GetCarById(r.Context(), id)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 		s.ch.Set(idParam, c, s.cacheTtl)
 
 		resp, err := json.Marshal(carDomainToDto(c))
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -77,35 +96,45 @@ func (s *Server) getCarById() func(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+// addCar godoc
+// @Summary      Add new car
+// @Description  Add new car
+// @Tags         cars
+// @Accept       json
+// @Produce      json
+// @Param        request    body      NewCarDto  true  "Car"
+// @Success      201  {object}  CarDto
+// @Failure      500  {object}  errorResponse
+// @Router       /cars [post]
 func (s *Server) addCar() func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 		defer r.Body.Close()
 
 		car := NewCarDto{}
 		err = json.Unmarshal(body, &car)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		newCar, err := s.usc.AddCar(r.Context(), newCarToDomain(car))
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		s.ch.Set(newCar.Id.String(), newCar, s.cacheTtl)
 
 		resp, err := json.Marshal(carDomainToDto(newCar))
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		w.WriteHeader(http.StatusCreated)
@@ -113,53 +142,73 @@ func (s *Server) addCar() func(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+// deleteCarById godoc
+// @Summary      Delete a car by ID
+// @Description  Delete a car by ID
+// @Tags         cars
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Car ID"
+// @Success      200
+// @Failure      500  {object}  errorResponse
+// @Router       /cars/{id} [delete]
 func (s *Server) deleteCarById() func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idParam := chi.URLParam(r, "id")
 		id, err := uuid.Parse(idParam)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		err = s.usc.DeleteCarById(r.Context(), id)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
 	}
 }
 
+// updateCar godoc
+// @Summary      Update a car
+// @Description  Update a car
+// @Tags         cars
+// @Accept       json
+// @Produce      json
+// @Param        request    body      CarDto  true  "Car"
+// @Success      200  {object}  CarDto
+// @Failure      500  {object}  errorResponse
+// @Router       /cars [put]
 func (s *Server) updateCar() func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 		defer r.Body.Close()
 
 		car := CarDto{}
 		err = json.Unmarshal(body, &car)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		newCar, err := s.usc.UpdateCar(r.Context(), carToDomain(car))
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		s.ch.Set(newCar.Id.String(), newCar, s.cacheTtl)
 
 		resp, err := json.Marshal(carDomainToDto(newCar))
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			newErrorResponse(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
